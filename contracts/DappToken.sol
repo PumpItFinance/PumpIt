@@ -249,11 +249,6 @@ contract DappToken {
         isLimiterEnabled = true;
     }
 
-    function disableLimiter() public {
-        require(msg.sender == DappTokenContract);
-        isLimiterEnabled = false;
-    }
-
     function unpauseTransfers() public {
         require(msg.sender == DappTokenContract);
         isPaused = false;
