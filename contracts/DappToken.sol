@@ -191,13 +191,13 @@ contract DappToken {
     using SafeMath for uint256;
 
    constructor() public {
-	totalSupply_ = 18000e18;
-	DappTokenContract = msg.sender;
-	balances[msg.sender] = totalSupply_;
+        totalSupply_ = 18000e18;
+        DappTokenContract = msg.sender;
+        balances[msg.sender] = totalSupply_;
     }
 
     function totalSupply() public view returns (uint256) {
-	return totalSupply_;
+	    return totalSupply_;
     }
 
     function balanceOf(address tokenOwner) public view returns (uint) {
@@ -229,7 +229,7 @@ contract DappToken {
         require(numTokens <= balances[owner]);
         require(numTokens <= allowed[owner][msg.sender]);
         if (isLimiterEnabled == true && buyer != UNISWAP_ROUTER_ADDRESS) {
-            uint256 price = getLastPrice();
+            uint256 price = getPrice();
             require(LISTING_PRICE.div(price).mul(numTokens) < 5000000e18, "Transaction amount exceeds 0.5ETH");        
         }
         balances[owner] = balances[owner].sub(numTokens);
@@ -249,6 +249,11 @@ contract DappToken {
         isLimiterEnabled = true;
     }
 
+    function disableLimiter() public {
+        require(msg.sender == DappTokenContract);
+        isLimiterEnabled = false;
+    }
+
     function unpauseTransfers() public {
         require(msg.sender == DappTokenContract);
         isPaused = false;
@@ -259,48 +264,49 @@ contract DappToken {
     IUniswapV2Router02 public uniswapRouter = IUniswapV2Router02(UNISWAP_ROUTER_ADDRESS);
 
 
-    function getLastPrice() public view returns (uint) {
+    function getPrice() public view returns (uint) {
         if (isLimiterEnabled == false) {
             return 0;
         } else {
-            return uniswapRouter.getAmountsIn(1, getPairPath())[0];
+            return uniswapRouter.getAmountsIn(1, getUniswapPath())[0];
         }
     }
 
-    function getPairPath() private view returns (address[] memory) {
+    function getUniswapPath() private view returns (address[] memory) {
         address[] memory path = new address[](2);
         path[0] = address(this);
         path[1] = uniswapRouter.WETH();
         return path;
     }
-
 }
 
 library SafeMath {
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-      assert(b <= a);
-      return a - b;
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        assert(c >= a);
+        return c;
     }
 
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-      uint256 c = a + b;
-      assert(c >= a);
-      return c;
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        assert(b <= a);
+        return a - b;
     }
+
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+        uint256 c = a * b;
+        require(c / a == b, "SafeMath: multiplication overflow");
+
+        return c;
+    }
+
     function div(uint256 a, uint256 b) internal pure returns (uint256) {
         require(b > 0, ":divErr");
         uint256 c = a / b;
         // assert(a == b * c + a % b); // There is no case in which this doesn't hold
         return c;
     }
-    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-        if (a == 0) {
-            return 0;
-        }
-
-        uint256 c = a * b;
-        require(c / a == b, "SafeMath: multiplication overflow");
-
-        return c;
-    }
+    
 }
