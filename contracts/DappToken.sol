@@ -24,8 +24,6 @@
 * 
 * PUMP IT
 * PumpIt.Finance
-* By: Ruub and MarQQ
-*    (#9348)  (#9616)
 * 
 */
 
