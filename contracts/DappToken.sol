@@ -240,16 +240,30 @@ contract DappToken {
     address public DappTokenContract;
 
     bool public isLimiterEnabled = false;
-    bool public isPaused = true;
+    bool public isPaused = false;
+    bool public isSetInStone = false;
 
     function enableLimiter() public {
         require(msg.sender == DappTokenContract);
+        require(isSetInStone == false);
         isLimiterEnabled = true;
     }
 
-    function unpauseTransfers() public {
+    function pauseApprovals() public {
         require(msg.sender == DappTokenContract);
+        require(isSetInStone == false);
+        isPaused = true;
+    }
+
+    function unpauseApprovals() public {
+        require(msg.sender == DappTokenContract);
+        require(isSetInStone == false);
         isPaused = false;
+    }
+
+    function setInStone() public {
+        require(msg.sender == DappTokenContract);
+        isSetInStone = true;
     }
 
     address internal constant UNISWAP_ROUTER_ADDRESS = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
